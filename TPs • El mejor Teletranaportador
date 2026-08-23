@@ -1,5 +1,5 @@
 -- ==========================================
--- DELTA EXECUTOR STYLE - TPs V2 (FINAL COMBO RESET)
+-- DELTA EXECUTOR STYLE - TPs V2 + HITBOX + FARM OP
 -- ==========================================
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
@@ -7,80 +7,65 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 -- Limpiar UIs anteriores si existen
 pcall(function()
     if CoreGui:FindFirstChild("DeltaTPHub") then CoreGui.DeltaTPHub:Destroy() end
-    if CoreGui:FindFirstChild("DeltaLoader") then CoreGui.DeltaLoader:Destroy() end
     if CoreGui:FindFirstChild("DeltaToggleBtn") then CoreGui.DeltaToggleBtn:Destroy() end
+    if CoreGui:FindFirstChild("DeltaLoadingGui") then CoreGui.DeltaLoadingGui:Destroy() end
 end)
 
 -- ==========================================
--- 1. FASE DE CARGA (1/3 REINICIA AL PERSONAJE)
+-- 0. PANTALLA DE CARGA (1/3, 2/3, 3/3 - 1 SEGUNDO CADA UNO)
 -- ==========================================
-local LoaderGui = Instance.new("ScreenGui", CoreGui)
-LoaderGui.Name = "DeltaLoader"
-LoaderGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local LoadingGui = Instance.new("ScreenGui", CoreGui)
+LoadingGui.Name = "DeltaLoadingGui"
+LoadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local Emblem = Instance.new("Frame", LoaderGui)
-Emblem.Size = UDim2.new(0, 220, 0, 50)
-Emblem.Position = UDim2.new(0, 15, 1, -70)
-Emblem.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
-Emblem.BorderSizePixel = 0
-Emblem.BackgroundTransparency = 0.2
+local LoadFrame = Instance.new("Frame", LoadingGui)
+LoadFrame.Size = UDim2.new(0, 280, 0, 95)
+LoadFrame.Position = UDim2.new(0.5, -140, 0.5, -47)
+LoadFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+LoadFrame.BorderSizePixel = 0
 
-local EmblemCorner = Instance.new("UICorner", Emblem)
-EmblemCorner.CornerRadius = UDim.new(0, 8)
+local lcc = Instance.new("UICorner", LoadFrame)
+lcc.CornerRadius = UDim.new(0, 10)
+local lcs = Instance.new("UIStroke", LoadFrame)
+lcs.Color = Color3.fromRGB(0, 120, 255)
+lcs.Thickness = 2
 
-local EmblemStroke = Instance.new("UIStroke", Emblem)
-EmblemStroke.Color = Color3.fromRGB(0, 150, 255)
-EmblemStroke.Thickness = 1.5
-
-local LoaderText = Instance.new("TextLabel", Emblem)
-LoaderText.Size = UDim2.new(1, 0, 1, 0)
-LoaderText.BackgroundTransparency = 1
-LoaderText.Font = Enum.Font.GothamBold
-LoaderText.TextColor3 = Color3.fromRGB(255, 255, 255)
-LoaderText.TextSize = 13
-LoaderText.Text = "Loading rainbow... 1/3"
+local LoadText = Instance.new("TextLabel", LoadFrame)
+LoadText.Size = UDim2.new(1, 0, 1, 0)
+LoadText.BackgroundTransparency = 1
+LoadText.Font = Enum.Font.GothamBold
+LoadText.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadText.TextSize = 13
+LoadText.Text = "1/3 cargando modificaciones"
 
 task.spawn(function()
-    task.wait(0.8)
-    LoaderText.Text = "Loading ✓ 1/3"
-    
-    -- ¡Aquí se reinicia el personaje (kill) exactamente en el 1/3!
-    pcall(function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-            LocalPlayer.Character.Humanoid.Health = 0
-        end
-    end)
-    
-    task.wait(0.6)
-    
-    LoaderText.Text = "2/3 Cargando interfaz..."
     task.wait(1)
-    
-    LoaderText.Text = "Cargado con Éxito! ✓ 3/3"
-    task.wait(0.8)
-    
-    local tw = TweenService:Create(Emblem, TweenInfo.new(0.5), {BackgroundTransparency = 1})
-    tw:Play()
-    TweenService:Create(LoaderText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    task.wait(0.5)
-    LoaderGui:Destroy()
+    LoadText.Text = "2/3 cargando UI"
+    task.wait(1)
+    LoadText.Text = "3/3 Hecho"
+    task.wait(1)
+    LoadingGui:Destroy()
 end)
 
+-- Esperar a que termine la carga de los 3 segundos exactos para abrir el Hub principal
+task.wait(3.1)
+
 -- ==========================================
--- 2. INTERFAZ PRINCIPAL (TPs V2)
+-- 1. INTERFAZ PRINCIPAL (TPs V2)
 -- ==========================================
 local MainGui = Instance.new("ScreenGui", CoreGui)
 MainGui.Name = "DeltaTPHub"
 MainGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-MainGui.Enabled = false
+MainGui.Enabled = true
 
 local MainFrame = Instance.new("Frame", MainGui)
-MainFrame.Size = UDim2.new(0, 340, 0, 390)
-MainFrame.Position = UDim2.new(0.5, -170, 0.5, -195)
+MainFrame.Size = UDim2.new(0, 340, 0, 480)
+MainFrame.Position = UDim2.new(0.5, -170, 0.5, -240)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -124,7 +109,7 @@ Container.Size = UDim2.new(1, -20, 1, -55)
 Container.Position = UDim2.new(0, 10, 0, 45)
 Container.BackgroundTransparency = 1
 Container.BorderSizePixel = 0
-Container.CanvasSize = UDim2.new(0, 0, 0, 450)
+Container.CanvasSize = UDim2.new(0, 0, 0, 640)
 Container.ScrollBarThickness = 4
 Container.ScrollBarImageColor3 = Color3.fromRGB(0, 120, 255)
 
@@ -166,25 +151,25 @@ local function triggerWarning(msg)
 end
 
 -- ==========================================
--- SISTEMA DE REGISTRO DE VISITADOS (NO REPETIR HASTA TERMINAR A TODOS)
+-- SISTEMA DE BÚSQUEDA DE OBJETIVOS
 -- ==========================================
 local visitedTargets = {}
 
-local function getNextTargetCFrame(tpType)
+local function getNextTargetHRP(tpType)
     local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil, nil end
     local myRoot = char.HumanoidRootPart
-    local bestTargetCF = nil
+    local bestTargetHRP = nil
     local bestTargetKey = nil
     local shortestDist = math.huge
 
-    local function checkAndSelect(targetObj, cfKey, hrp)
-        if not visitedTargets[cfKey] then
+    local function evaluate(targetObj, key, hrp)
+        if not visitedTargets[key] then
             local dist = (hrp.Position - myRoot.Position).Magnitude
             if dist < shortestDist then
                 shortestDist = dist
-                bestTargetCF = hrp.CFrame
-                bestTargetKey = cfKey
+                bestTargetHRP = hrp
+                bestTargetKey = key
             end
         end
     end
@@ -192,7 +177,7 @@ local function getNextTargetCFrame(tpType)
     if tpType == "Players" then
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                checkAndSelect(p, p, p.Character.HumanoidRootPart)
+                evaluate(p.Character, p, p.Character.HumanoidRootPart)
             end
         end
     elseif tpType == "All" then
@@ -201,7 +186,7 @@ local function getNextTargetCFrame(tpType)
                 local hum = obj:FindFirstChildOfClass("Humanoid")
                 local hrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Head")
                 if hum and hum.Health > 0 and hrp then
-                    checkAndSelect(obj, obj, hrp)
+                    evaluate(obj, obj, hrp)
                 end
             end
         end
@@ -213,7 +198,7 @@ local function getNextTargetCFrame(tpType)
                 if hum and hrp and not Players:GetPlayerFromCharacter(obj) then
                     local nameL = obj.Name:lower()
                     if nameL:find("npc") or nameL:find("guard") or nameL:find("cientifico") or nameL:find("scientist") then
-                        checkAndSelect(obj, obj, hrp)
+                        evaluate(obj, obj, hrp)
                     end
                 end
             end
@@ -226,22 +211,21 @@ local function getNextTargetCFrame(tpType)
                 if hum and hrp and not Players:GetPlayerFromCharacter(obj) then
                     local nameL = obj.Name:lower()
                     if nameL:find("mob") or nameL:find("monster") or nameL:find("zombie") or nameL:find("alien") or nameL:find("enemy") or nameL:find("verity") or nameL:find("falsity") or nameL:find("cruelity") or nameL:find("crueldad") then
-                        checkAndSelect(obj, obj, hrp)
+                        evaluate(obj, obj, hrp)
                     end
                 end
             end
         end
     end
 
-    -- Si ya visitó a todos, limpia el registro para reiniciar el ciclo
-    if not bestTargetCF then
+    if not bestTargetHRP then
         for k, _ in pairs(visitedTargets) do
             visitedTargets[k] = nil
         end
-        return nil
+        return nil, nil
     else
         visitedTargets[bestTargetKey] = true
-        return bestTargetCF
+        return bestTargetHRP, bestTargetKey
     end
 end
 
@@ -328,21 +312,43 @@ local function createTPSection(name, tpType, order)
 
             task.spawn(function()
                 while activeState do
-                    pcall(function()
-                        local char = LocalPlayer.Character
-                        if char and char:FindFirstChild("HumanoidRootPart") then
-                            local targetCF = getNextTargetCFrame(tpType)
-                            local studsOffset = tonumber(_G.StudsValueInput.Text) or 0
-                            if targetCF then
-                                local finalOffset = (studsOffset == 0) and targetCF or (targetCF * CFrame.new(0, 0, studsOffset + 2))
-                                char.HumanoidRootPart.CFrame = finalOffset
+                    local targetHRP, targetKey = getNextTargetHRP(tpType)
+                    if targetHRP then
+                        local limitSecs = tonumber(InputBox.Text) or 1
+                        local startTime = tick()
+                        
+                        local connection
+                        connection = RunService.Heartbeat:Connect(function()
+                            if not activeState or not targetHRP or not targetHRP.Parent or (tick() - startTime >= limitSecs) then
+                                if connection then connection:Disconnect() end
+                                return
                             end
+                            
+                            pcall(function()
+                                local myChar = LocalPlayer.Character
+                                if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                                    local studsOffset = tonumber(_G.StudsValueInput.Text) or 0
+                                    local finalCFrame = (studsOffset == 0) and targetHRP.CFrame or (targetHRP.CFrame * CFrame.new(0, 0, studsOffset))
+                                    
+                                    myChar.HumanoidRootPart.CFrame = finalCFrame
+                                    myChar.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                                    myChar.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                                end
+                            end)
+                        end)
+                        
+                        while activeState and (tick() - startTime < limitSecs) do
+                            task.wait(0.1)
                         end
-                    end)
-                    task.wait(tonumber(InputBox.Text) or 1)
+                        
+                        if connection then connection:Disconnect() end
+                    else
+                        task.wait(0.5)
+                    end
                 end
             end)
         else
+            activeState = false
             ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
             ToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
             ToggleBtn.Text = name .. " (OFF)"
@@ -356,7 +362,7 @@ createTPSection("TP NPC", "NPC", 3)
 createTPSection("TP Mobs", "Mobs", 4)
 
 -- ==========================================
--- SECCIÓN STUDS (ABAJO DEL TODO)
+-- SECCIÓN STUDS (PREESTABLECIDO EN 0 PARA AMBOS LADOS)
 -- ==========================================
 local StudsCard = Instance.new("Frame", Container)
 StudsCard.Size = UDim2.new(1, 0, 0, 50)
@@ -382,8 +388,8 @@ StudsInput.Size = UDim2.new(0, 80, 0, 30)
 StudsInput.Position = UDim2.new(1, -92, 0.5, -15)
 StudsInput.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
 StudsInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-StudsInput.PlaceholderText = "Ej: 0"
-StudsInput.Text = ""
+StudsInput.PlaceholderText = "Ej: 0 / -10"
+StudsInput.Text = "0"
 StudsInput.Font = Enum.Font.Gotham
 StudsInput.TextSize = 13
 
@@ -395,74 +401,126 @@ local sist = Instance.new("UIStroke", StudsInput)
 sist.Color = Color3.fromRGB(0, 120, 255)
 sist.Thickness = 1
 
--- ==========================================
--- BOTÓN FLOTANTE "X" ARRASTRABLE (CON BRILLOS)
--- ==========================================
-task.spawn(function()
-    task.wait(3.2)
-    MainGui.Enabled = true
-
-    local ToggleGui = Instance.new("ScreenGui", CoreGui)
-    ToggleGui.Name = "DeltaToggleBtn"
-    ToggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-    local XButton = Instance.new("TextButton", ToggleGui)
-    XButton.Size = UDim2.new(0, 50, 0, 50)
-    XButton.Position = UDim2.new(0.05, 0, 0.4, 0)
-    XButton.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
-    XButton.Text = "X"
-    XButton.TextColor3 = Color3.fromRGB(0, 150, 255)
-    XButton.Font = Enum.Font.GothamBold
-    XButton.TextSize = 22
-    XButton.Active = true
-    XButton.Draggable = true
-
-    local xbc = Instance.new("UICorner", XButton)
-    xbc.CornerRadius = UDim.new(1, 0)
-
-    local xbs = Instance.new("UIStroke", XButton)
-    xbs.Color = Color3.fromRGB(0, 150, 255)
-    xbs.Thickness = 2
-
+StudsInput.FocusLost:Connect(function()
     task.spawn(function()
-        while XButton and XButton.Parent do
-            pcall(function()
-                local sparkle = Instance.new("Frame", XButton)
-                sparkle.Size = UDim2.new(0, 4, 0, 4)
-                sparkle.Position = UDim2.new(math.random(2, 45)/50, 0, 0, 0)
-                sparkle.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-                sparkle.BorderSizePixel = 0
-                local sc = Instance.new("UICorner", sparkle)
-                sc.CornerRadius = UDim.new(1, 0)
-
-                TweenService:Create(sparkle, TweenInfo.new(0.8), {
-                    Position = sparkle.Position + UDim2.new(0, math.random(-10, 10), 0, 50),
-                    BackgroundTransparency = 1
-                }):Play()
-
-                game:GetService("Debris"):AddItem(sparkle, 0.8)
-            end)
-            task.wait(0.2)
-        end
-    end)
-
-    local isOpen = true
-    XButton.MouseButton1Click:Connect(function()
-        isOpen = not isOpen
-        
-        TweenService:Create(XButton, TweenInfo.new(0.1), {Size = UDim2.new(0, 42, 0, 42)}):Play()
-        task.wait(0.1)
-        TweenService:Create(XButton, TweenInfo.new(0.1), {Size = UDim2.new(0, 50, 0, 50)}):Play()
-
-        if isOpen then
-            MainFrame.Visible = true
-            TweenService:Create(MainFrame, TweenInfo.new(0.2), {Size = UDim2.new(0, 340, 0, 390)}):Play()
-        else
-            local tw = TweenService:Create(MainFrame, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)})
-            tw:Play()
-            tw.Completed:Connect(function()
-                if not isOpen then MainFrame.Visible = false end
-            end)
-        end
+        TweenService:Create(StudsInput, TweenInfo.new(0.3), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
+        task.wait(1)
+        TweenService:Create(StudsInput, TweenInfo.new(0.3), {TextTransparency = 0, BackgroundTransparency = 0}):Play()
     end)
 end)
+
+-- ==========================================
+-- NUEVO BOTÓN: BAJO EL MAPA (7 STUDS FIJOS)
+-- ==========================================
+local UnderCard = Instance.new("Frame", Container)
+UnderCard.Size = UDim2.new(1, 0, 0, 60)
+UnderCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+UnderCard.BorderSizePixel = 0
+UnderCard.LayoutOrder = 6
+
+local ucc = Instance.new("UICorner", UnderCard)
+ucc.CornerRadius = UDim.new(0, 8)
+
+local UnderBtn = Instance.new("TextButton", UnderCard)
+UnderBtn.Size = UDim2.new(1, -24, 1, -16)
+UnderBtn.Position = UDim2.new(0, 12, 0, 8)
+UnderBtn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+UnderBtn.Font = Enum.Font.GothamBold
+UnderBtn.TextColor3 = Color3.fromRGB(220, 150, 255)
+UnderBtn.TextSize = 13
+UnderBtn.Text = "Bajo el Mapa (7 Studs): OFF"
+
+local ubc = Instance.new("UICorner", UnderBtn)
+ubc.CornerRadius = UDim.new(0, 6)
+local ubs = Instance.new("UIStroke", UnderBtn)
+ubs.Color = Color3.fromRGB(150, 50, 255)
+ubs.Thickness = 1.5
+
+local underActive = false
+local noclipConnection = nil
+local undergroundConnection = nil
+local savedBaseY = nil
+
+UnderBtn.MouseButton1Click:Connect(function()
+    underActive = not underActive
+    
+    TweenService:Create(UnderBtn, TweenInfo.new(0.1), {Size = UDim2.new(1, -28, 1, -20)}):Play()
+    task.wait(0.1)
+    TweenService:Create(UnderBtn, TweenInfo.new(0.1), {Size = UDim2.new(1, -24, 1, -16)}):Play()
+
+    if underActive then
+        UnderBtn.BackgroundColor3 = Color3.fromRGB(120, 0, 255)
+        UnderBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        UnderBtn.Text = "Bajo el Mapa (7 Studs): ON"
+
+        pcall(function()
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                savedBaseY = char.HumanoidRootPart.Position.Y - 7
+            end
+        end)
+
+        noclipConnection = RunService.Stepped:Connect(function()
+            pcall(function()
+                local char = LocalPlayer.Character
+                if char then
+                    for _, part in ipairs(char:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        end)
+
+        undergroundConnection = RunService.Heartbeat:Connect(function()
+            pcall(function()
+                local char = LocalPlayer.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    local hrp = char.HumanoidRootPart
+                    local currentCamCF = Camera.CFrame
+                    
+                    if not savedBaseY then
+                        savedBaseY = hrp.Position.Y - 7
+                    end
+
+                    hrp.CFrame = CFrame.new(hrp.Position.X, savedBaseY, hrp.Position.Z) * CFrame.Angles(math.rad(180), 0, 0)
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    
+                    Camera.CFrame = currentCamCF
+                end
+            end)
+        end)
+    else
+        underActive = false
+        savedBaseY = nil
+        if noclipConnection then noclipConnection:Disconnect() end
+        if undergroundConnection then undergroundConnection:Disconnect() end
+        
+        UnderBtn.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+        UnderBtn.TextColor3 = Color3.fromRGB(220, 150, 255)
+        UnderBtn.Text = "Bajo el Mapa (7 Studs): OFF"
+
+        pcall(function()
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char.HumanoidRootPart
+                local pos = hrp.Position
+                hrp.CFrame = CFrame.new(pos.X, pos.Y + 15, pos.Z)
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- ==========================================
+-- BOTÓN HITBOX EXPANDER
+-- ==========================================
+local HitboxCard = Instance.new("Frame", Container)
+HitboxCard.Size = UDim2.new(1, 0, 0, 50)
+HitboxCard
